@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Product List</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    h1 {
+      margin-top: 0;
+    }
+
+    .product-list {
+      padding: 0;
+      margin-bottom: 20px;
+    }
+
+    .product-item {
+      margin-bottom: 10px;
+      padding: 10px;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+
+    .product-item h2 {
+      margin-top: 0;
+    }
+
+    .form-container {
+      display: flex;
+      margin-bottom: 20px;
+    }
+
+    .form-container input {
+      margin-right: 10px;
+    }
+
+    .btn {
+      padding: 5px 10px;
+      background-color: #4CAF50;
+      color: #fff;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+
+    .btn-delete {
+      background-color: #f44336;
+    }
+  </style>
+</head>
+<body>
+  <h1>Product List</h1>
+  <div class="form-container">
+    <input type="text" id="name-input" placeholder="Product Name">
+    <input type="number" id="price-input" placeholder="Product Price">
+    <button class="btn btn-create">Create Product</button>
+  </div>
+  <ul class="product-list"></ul>
+
+  <script>
+    // Fetch products from the API and populate the list
+    async function fetchProducts() {
+      const response = await fetch('/products');
+      const products = await response.json();
+
+      const productList = document.querySelector('.product-list');
+      productList.innerHTML = '';
+
+      products.forEach(product => {
+        const productItem = document.createElement('li');
+        productItem.classList.add('product-item');
+
+        const productName = document.createElement('h2');
+        productName.textContent = product.name;
+
+        const productPrice = document.createElement('p');
+        productPrice.textContent = `Price: $${product.price}`;
+
+        productItem.appendChild(productName);
+        productItem.appendChild(productPrice);
+
+        productList.appendChild(productItem);
+      });
+    }
+
+    // Call the fetchProducts function when the page loads
+    document.addEventListener('DOMContentLoaded', () => {
+      fetchProducts();
+    });
+
+    // Add event listener to create product button
+    const createButton = document.querySelector('.btn-create');
+    createButton.addEventListener('click', () => {
+      const nameInput = document.querySelector('#name-input');
+      const priceInput = document.querySelector('#price-input');
+      const name = nameInput.value;
+      const price = parseFloat(priceInput.value);
+
+      if (name && price) {
+        createProduct({ name, price });
+        nameInput.value = '';
+        priceInput.value = '';
+      }
+    });
+
+    // Function to create a new product
+    async function createProduct(productData) {
+      try {
+        const response = await fetch('/products', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(productData)
+        });
+        const createdProduct = await response.json();
+        console.log('Product created:', createdProduct);
+        fetchProducts();
+      } catch (error) {
+        console.error('Error creating product:', error);
+      }
+    }
+  </script>
+</body>
+</html>
+
+
+
+
